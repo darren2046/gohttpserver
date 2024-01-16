@@ -8,7 +8,6 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"net/url"
 	"os"
 	"regexp"
 	"runtime"
@@ -96,7 +95,7 @@ func parseFlags() error {
 	gcfg.Port = 8000
 	gcfg.Addr = ""
 	gcfg.Theme = "black"
-	gcfg.PlistProxy = defaultPlistProxy
+	// gcfg.PlistProxy = defaultPlistProxy
 	gcfg.Auth.OpenID = defaultOpenID
 	gcfg.GoogleTrackerID = "UA-81205425-2"
 	gcfg.Title = "Go HTTP File Server"
@@ -120,7 +119,7 @@ func parseFlags() error {
 	kingpin.Flag("delete", "enable delete support").BoolVar(&gcfg.Delete)
 	kingpin.Flag("xheaders", "used when behide nginx").BoolVar(&gcfg.XHeaders)
 	kingpin.Flag("debug", "enable debug mode").BoolVar(&gcfg.Debug)
-	kingpin.Flag("plistproxy", "plist proxy when server is not https").Short('p').StringVar(&gcfg.PlistProxy)
+	// kingpin.Flag("plistproxy", "plist proxy when server is not https").Short('p').StringVar(&gcfg.PlistProxy)
 	kingpin.Flag("title", "server title").StringVar(&gcfg.Title)
 	kingpin.Flag("google-tracker-id", "set to empty to disable it").StringVar(&gcfg.GoogleTrackerID)
 	kingpin.Flag("deep-path-max-depth", "set to -1 to not combine dirs").IntVar(&gcfg.DeepPathMaxDepth)
@@ -191,17 +190,17 @@ func main() {
 	ss.AuthType = gcfg.Auth.Type
 	ss.DeepPathMaxDepth = gcfg.DeepPathMaxDepth
 
-	if gcfg.PlistProxy != "" {
-		u, err := url.Parse(gcfg.PlistProxy)
-		if err != nil {
-			log.Fatal(err)
-		}
-		u.Scheme = "https"
-		ss.PlistProxy = u.String()
-	}
-	if ss.PlistProxy != "" {
-		log.Printf("plistproxy: %s", strconv.Quote(ss.PlistProxy))
-	}
+	// if gcfg.PlistProxy != "" {
+	// 	u, err := url.Parse(gcfg.PlistProxy)
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// 	u.Scheme = "https"
+	// 	ss.PlistProxy = u.String()
+	// }
+	// if ss.PlistProxy != "" {
+	// 	log.Printf("plistproxy: %s", strconv.Quote(ss.PlistProxy))
+	// }
 
 	var hdlr http.Handler = ss
 
@@ -215,12 +214,12 @@ func main() {
 			user, pass := userpass[0], userpass[1]
 			hdlr = httpauth.SimpleBasicAuth(user, pass)(hdlr)
 		}
-	case "openid":
-		handleOpenID(gcfg.Auth.OpenID, false) // FIXME(ssx): set secure default to false
-		// case "github":
-		// 	handleOAuth2ID(gcfg.Auth.Type, gcfg.Auth.ID, gcfg.Auth.Secret) // FIXME(ssx): set secure default to false
-	case "oauth2-proxy":
-		handleOauth2()
+		// case "openid":
+		// 	handleOpenID(gcfg.Auth.OpenID, false) // FIXME(ssx): set secure default to false
+		// 	// case "github":
+		// 	// 	handleOAuth2ID(gcfg.Auth.Type, gcfg.Auth.ID, gcfg.Auth.Secret) // FIXME(ssx): set secure default to false
+		// case "oauth2-proxy":
+		// 	handleOauth2()
 	}
 
 	// CORS

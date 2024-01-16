@@ -11,5 +11,6 @@
 }
 
 #scrollUp:after {
-    content: "Scroll to top";
+    /* content: "Scroll to top"; */
+    content: ""; 
 }

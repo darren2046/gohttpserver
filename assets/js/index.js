@@ -36,6 +36,41 @@ function showErrorMessage(jqXHR) {
   console.error(errMsg)
 }
 
+function modifyAndJoinString(inputString) {
+  // Split the string into an array using '/' as the separator
+  var stringArray = inputString.split('/');
+
+  // Remove the last element of the array
+  stringArray.pop();
+
+  // Join the array back into a string using '/' as the separator
+  var modifiedString = stringArray.join('/');
+
+  return modifiedString;
+}
+
+
+function updateImageSources(htmlString, prefix) {
+// 将字符串转换为 DOM 元素
+const parser = new DOMParser();
+const doc = parser.parseFromString(htmlString, 'text/html');
+
+// 遍历所有的 img 元素
+const images = doc.querySelectorAll('img');
+images.forEach(img => {
+      console.log(img.src);
+    // 检查 src 是否是相对链接
+  //   if (!img.src.startsWith('http://') && !img.src.startsWith('https://') && !img.src.startsWith('/')) {
+  //       // 在相对链接前添加前缀
+  //       img.src = prefix + img.src;
+  //   }
+      img.src = img.src.replace(modifyAndJoinString(window.location.href), window.location.href);
+});
+
+// 将修改后的 DOM 元素转换回字符串
+return doc.documentElement.outerHTML;
+}
+
 var vm = new Vue({
   el: "#app",
   data: {
@@ -101,6 +136,8 @@ var vm = new Vue({
             });
 
             var html = converter.makeHtml(res);
+            html = updateImageSources(html, "gohttpserver/");
+            console.log(html);
             that.preview.contentHTML = html;
           },
           error: function (err) {
